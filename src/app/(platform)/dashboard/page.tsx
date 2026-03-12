@@ -7,6 +7,7 @@ import { Megaphone, Users, MessageSquare, Plus, ArrowRight, Clock } from "lucide
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { PageContainer } from "@/components/layout/PageContainer";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -24,6 +25,7 @@ export default async function DashboardPage() {
 
     if (!companyProfile) {
       return (
+        <PageContainer>
         <div className="space-y-6">
           <div>
             <h1 className="text-h1 font-heading text-gray-950">{greeting}, {user.name}</h1>
@@ -42,10 +44,12 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+        </PageContainer>
       );
     }
 
     return (
+      <PageContainer>
       <div className="space-y-8">
         <div>
           <h1 className="text-h1 font-heading text-gray-950">
@@ -145,6 +149,7 @@ export default async function DashboardPage() {
           </Card>
         )}
       </div>
+      </PageContainer>
     );
   }
 
@@ -154,6 +159,7 @@ export default async function DashboardPage() {
 
   if (!influencerProfile) {
     return (
+      <PageContainer>
       <div className="space-y-6">
         <div>
           <h1 className="text-h1 font-heading text-gray-950">{greeting}, {user.name}</h1>
@@ -172,10 +178,12 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+      </PageContainer>
     );
   }
 
   return (
+    <PageContainer>
     <div className="space-y-8">
       <div>
         <h1 className="text-h1 font-heading text-gray-950">
@@ -265,5 +273,6 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
+    </PageContainer>
   );
 }

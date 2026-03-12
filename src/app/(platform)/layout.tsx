@@ -24,19 +24,12 @@ export default async function PlatformLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar user={user} unreadCount={unreadCount} />
       </div>
-
-      {/* Mobile nav */}
       <MobileNav user={user} unreadCount={unreadCount} />
-
-      {/* Main content */}
       <main className="lg:pl-64">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   CreditCard,
   Settings,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AvatarWithFallback } from "@/components/shared/AvatarWithFallback";
@@ -32,7 +33,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["INFLUENCER", "COMPANY", "ADMIN"] },
   { href: "/campaigns", label: "Campaigns", icon: Megaphone, roles: ["INFLUENCER", "COMPANY", "ADMIN"] },
   { href: "/influencers", label: "Influencers", icon: Users, roles: ["COMPANY", "ADMIN"] },
-  { href: "/applications", label: "My Applications", icon: Megaphone, roles: ["INFLUENCER"] },
+  { href: "/applications", label: "My Applications", icon: ClipboardList, roles: ["INFLUENCER"] },
   { href: "/messages", label: "Messages", icon: MessageSquare, roles: ["INFLUENCER", "COMPANY", "ADMIN"] },
   { href: "/payments", label: "Payments", icon: CreditCard, roles: ["INFLUENCER", "COMPANY", "ADMIN"] },
   { href: "/notifications", label: "Notifications", icon: Bell, roles: ["INFLUENCER", "COMPANY", "ADMIN"] },

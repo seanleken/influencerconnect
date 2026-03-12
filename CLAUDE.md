@@ -13,7 +13,7 @@ Two-sided marketplace connecting influencers with companies for advertising camp
 - **DB**: Neon Postgres with `@neondatabase/serverless` + `@prisma/adapter-neon`
 - **ORM**: Prisma — singleton client in `src/lib/db.ts`
 - **Auth**: NextAuth v5 (Auth.js) — JWT strategy, config in `src/lib/auth.ts`
-- **Realtime**: Pusher — server SDK for actions, client SDK for components
+- **Realtime**: Pusher (`pusher` server + `pusher-js` client) — channels for messaging, notifications
 - **Payments**: Stripe Connect (Express accounts)
 - **Storage**: Cloudflare R2 via `@aws-sdk/client-s3`
 - **UI**: Tailwind CSS v3 (`tailwind.config.ts`) + shadcn/ui
@@ -27,7 +27,7 @@ npm run dev          # Start dev server
 npm run build        # Production build
 npm run lint         # ESLint
 npx prisma generate  # Regenerate Prisma client after schema changes
-npx prisma migrate dev --name <name>  # Create and apply migration
+npx prisma migrate dev --name <n>  # Create and apply migration
 npx prisma studio    # Visual DB browser
 ```
 
@@ -36,7 +36,7 @@ npx prisma studio    # Visual DB browser
 1. **Server Components by default.** Every page is a Server Component. Only add `"use client"` when the component needs interactivity (event handlers, hooks, Pusher subscriptions).
 2. **Server Actions for ALL mutations.** Define in `src/actions/*.ts`. Never use API routes for data mutations. Use `"use server"` at file top.
 3. **Direct Prisma calls for data reads.** Fetch data in `async` Server Components via Prisma. No `useEffect` + `fetch` for page data. No API routes for reads.
-4. **API routes ONLY for:** Stripe webhooks (`/api/webhooks/stripe`), Pusher auth (`/api/pusher/auth`), file upload presign (`/api/upload/presign`), OAuth callbacks.
+4. **API routes ONLY for:** Stripe webhooks (`/api/webhooks/stripe`), file upload presign (`/api/upload/presign`), OAuth callbacks.
 5. **Zod validation on every Server Action.** Parse input with the matching schema from `src/schemas/` before any DB call. Return `{ success: true, data }` or `{ success: false, error }`.
 6. **`revalidatePath()` after every mutation** in Server Actions to refresh cached data.
 7. **Auth check in every Server Action and protected page.** Call `auth()` from `src/lib/auth.ts`, verify session exists, verify role matches.
@@ -78,12 +78,30 @@ npx prisma studio    # Visual DB browser
 - Use `select` and `include` to avoid over-fetching. Never use `findMany` without pagination.
 - Connection uses Neon serverless adapter — do not use standard `PrismaClient()` constructor directly
 
-## Pusher Pattern
+## Pusher Pattern — IMPORTANT
 
-- Server: import from `src/lib/pusher-server.ts`, trigger events inside Server Actions after DB write
-- Client: import from `src/lib/pusher-client.ts`, subscribe in `useEffect` with cleanup
-- Channel naming: `private-conversation-{id}` for messages, `presence-user-{id}` for notifications
-- Events: `new-message`, `typing`, `message-read`, `new-notification`
+### Setup
+- `src/lib/pusher-server.ts` — server-side Pusher client (uses `PUSHER_APP_ID`, `PUSHER_SECRET`). Import only in Server Actions / API routes.
+- `src/lib/pusher-client.ts` — lazy singleton `getPusherClient()` for browser use. Uses `NEXT_PUBLIC_PUSHER_KEY` + `NEXT_PUBLIC_PUSHER_CLUSTER`.
+
+### Message Flow
+1. User submits via a Client Component
+2. Calls a Server Action
+3. Server Action validates with Zod, writes to DB via Prisma
+4. Server Action calls `pusherServer.trigger(channel, event, payload)`
+5. Client component subscribes to the channel and updates local state
+
+### Channels & Events
+- Chat: channel `conversation-{conversationId}`, event `new-message`
+- Notifications: channel `user-{userId}-notifications`, event `new-notification`
+
+### Client Subscription Pattern
+```ts
+const pusher = getPusherClient();
+const channel = pusher.subscribe("conversation-123");
+channel.bind("new-message", (data: ChatMessage) => { /* update state */ });
+return () => { channel.unbind_all(); pusher.unsubscribe("conversation-123"); };
+```
 
 ## Git Workflow
 
@@ -102,6 +120,6 @@ npx prisma studio    # Visual DB browser
 - Do NOT create API route handlers for data fetching — use Server Components
 - Do NOT use `useRouter` from `next/navigation` for form submissions — use Server Actions
 - Do NOT put Pusher subscriptions in Server Components — Pusher client is browser-only
-- Do NOT import `pusher-server.ts` in client components — it exposes secrets
-- Do NOT use `localStorage` or `sessionStorage` — not relevant for this app
+- Do NOT import `pusher-server` in client components — it exposes secrets
+- Do NOT use `localStorage` or `sessionStorage`
 - Do NOT install Tailwind v4 or use its config format

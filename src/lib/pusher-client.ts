@@ -1,14 +1,13 @@
 "use client";
 
-import Pusher from "pusher-js";
+import PusherClient from "pusher-js";
 
-let pusherClient: Pusher | null = null;
+let pusherClient: PusherClient | null = null;
 
-export function getPusherClient(): Pusher {
+export function getPusherClient(): PusherClient {
   if (!pusherClient) {
-    pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+    pusherClient = new PusherClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-      authEndpoint: "/api/pusher/auth",
     });
   }
   return pusherClient;
