@@ -149,6 +149,7 @@ model Campaign {
   deliverables     String
   deadline         DateTime
   maxInfluencers   Int            @default(1)
+  briefUrl         String?
   status           CampaignStatus @default(OPEN)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt

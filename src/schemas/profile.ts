@@ -18,6 +18,8 @@ export const influencerProfileSchema = z.object({
   portfolioUrls: z.array(z.string().url("Invalid portfolio URL")).optional(),
   isAvailable: z.boolean().default(true),
   socialLinks: z.array(socialLinkSchema).optional(),
+  image: z.string().url().optional().nullable(),
+  mediaKitUrl: z.string().url().optional().nullable(),
 });
 
 export const companyProfileSchema = z.object({
@@ -29,6 +31,8 @@ export const companyProfileSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(1000),
   size: z.enum(["1-10", "11-50", "51-200", "201-500", "500+"]).optional(),
+  image: z.string().url().optional().nullable(),
+  logo: z.string().url().optional().nullable(),
 });
 
 export type InfluencerProfileInput = z.infer<typeof influencerProfileSchema>;

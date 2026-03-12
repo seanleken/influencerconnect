@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { createCampaign, updateCampaign } from "@/actions/campaigns";
+import { FileUpload } from "@/components/shared/FileUpload";
 import type { Campaign } from "@prisma/client";
 
 const NICHE_LABELS: Record<Niche, string> = {
@@ -58,6 +59,7 @@ export function CampaignForm({ initialData }: Props) {
   const [maxInfluencers, setMaxInfluencers] = useState(
     String(initialData?.maxInfluencers ?? 1)
   );
+  const [briefUrl, setBriefUrl] = useState<string | null>(initialData?.briefUrl ?? null);
 
   function toggleNiche(niche: Niche) {
     setNiches((prev) =>
@@ -85,6 +87,7 @@ export function CampaignForm({ initialData }: Props) {
       budgetMax: budgetMax ? parseInt(budgetMax) : 0,
       deadline,
       maxInfluencers: parseInt(maxInfluencers) || 1,
+      briefUrl,
     };
   }
 
@@ -281,6 +284,21 @@ export function CampaignForm({ initialData }: Props) {
           onChange={(e) => setMaxInfluencers(e.target.value)}
         />
         <p className="text-caption text-gray-500">How many influencers can be accepted?</p>
+      </div>
+
+      {/* Campaign Brief */}
+      <div className="space-y-2">
+        <Label>Campaign Brief (optional)</Label>
+        <p className="text-caption text-gray-500">Attach a PDF or image with more detailed campaign information</p>
+        <FileUpload
+          folder="campaign-brief"
+          accept="application/pdf,image/jpeg,image/png"
+          maxSizeBytes={10 * 1024 * 1024}
+          currentUrl={briefUrl}
+          onUpload={(url) => setBriefUrl(url || null)}
+          label="Upload brief"
+          compact
+        />
       </div>
 
       {/* Actions */}

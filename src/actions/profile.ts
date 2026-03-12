@@ -10,6 +10,7 @@ import {
   upsertInfluencerProfile,
   upsertCompanyProfile,
 } from "@/services/profile.service";
+import { db } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
 export async function saveInfluencerProfile(formData: unknown) {
@@ -33,20 +34,27 @@ export async function saveInfluencerProfile(formData: unknown) {
     portfolioUrls,
     isAvailable,
     socialLinks,
+    image,
+    mediaKitUrl,
   } = result.data;
 
-  await upsertInfluencerProfile(session.user.id, {
-    bio,
-    niches,
-    location: location || null,
-    // Input is dollars; store as cents
-    ratePerPost: ratePerPost != null ? ratePerPost * 100 : null,
-    ratePerStory: ratePerStory != null ? ratePerStory * 100 : null,
-    ratePerVideo: ratePerVideo != null ? ratePerVideo * 100 : null,
-    portfolioUrls: portfolioUrls ?? [],
-    isAvailable,
-    socialLinks: (socialLinks ?? []) as Prisma.InputJsonValue,
-  });
+  await Promise.all([
+    upsertInfluencerProfile(session.user.id, {
+      bio,
+      niches,
+      location: location || null,
+      ratePerPost: ratePerPost != null ? ratePerPost * 100 : null,
+      ratePerStory: ratePerStory != null ? ratePerStory * 100 : null,
+      ratePerVideo: ratePerVideo != null ? ratePerVideo * 100 : null,
+      portfolioUrls: portfolioUrls ?? [],
+      isAvailable,
+      socialLinks: (socialLinks ?? []) as Prisma.InputJsonValue,
+      mediaKitUrl: mediaKitUrl ?? null,
+    }),
+    image !== undefined
+      ? db.user.update({ where: { id: session.user.id }, data: { image: image || null } })
+      : Promise.resolve(),
+  ]);
 
   revalidatePath("/profile");
   revalidatePath("/dashboard");
@@ -64,15 +72,21 @@ export async function saveCompanyProfile(formData: unknown) {
     return { success: false, error: result.error.issues[0].message };
   }
 
-  const { companyName, website, industry, description, size } = result.data;
+  const { companyName, website, industry, description, size, image, logo } = result.data;
 
-  await upsertCompanyProfile(session.user.id, {
-    companyName,
-    website: website || null,
-    industry,
-    description,
-    size: size ?? null,
-  });
+  await Promise.all([
+    upsertCompanyProfile(session.user.id, {
+      companyName,
+      website: website || null,
+      industry,
+      description,
+      size: size ?? null,
+      logo: logo ?? null,
+    }),
+    image !== undefined
+      ? db.user.update({ where: { id: session.user.id }, data: { image: image || null } })
+      : Promise.resolve(),
+  ]);
 
   revalidatePath("/profile");
   revalidatePath("/dashboard");

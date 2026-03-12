@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   Pencil,
   ClipboardList,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -194,6 +195,24 @@ export default async function CampaignDetailPage({
                     className="text-body-sm font-medium text-brand-600 hover:text-brand-700 truncate block"
                   >
                     {campaign.companyProfile.website.replace(/^https?:\/\//, "")}
+                  </a>
+                </div>
+              </div>
+            )}
+          {campaign.briefUrl && (
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-gray-500" />
+                </div>
+                <div>
+                  <p className="text-caption text-gray-500">Campaign Brief</p>
+                  <a
+                    href={campaign.briefUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-body-sm font-medium text-brand-600 hover:text-brand-700"
+                  >
+                    View brief
                   </a>
                 </div>
               </div>

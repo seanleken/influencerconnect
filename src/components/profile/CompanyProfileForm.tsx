@@ -14,18 +14,22 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { saveCompanyProfile } from "@/actions/profile";
+import { FileUpload } from "@/components/shared/FileUpload";
 import type { CompanyProfile } from "@prisma/client";
 
 const COMPANY_SIZES = ["1-10", "11-50", "51-200", "201-500", "500+"] as const;
 
 interface Props {
   profile: CompanyProfile | null;
+  userImage?: string | null;
 }
 
-export function CompanyProfileForm({ profile }: Props) {
+export function CompanyProfileForm({ profile, userImage }: Props) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
+  const [image, setImage] = useState<string | null>(userImage ?? null);
+  const [logo, setLogo] = useState<string | null>(profile?.logo ?? null);
   const [companyName, setCompanyName] = useState(profile?.companyName ?? "");
   const [website, setWebsite] = useState(profile?.website ?? "");
   const [industry, setIndustry] = useState(profile?.industry ?? "");
@@ -42,6 +46,8 @@ export function CompanyProfileForm({ profile }: Props) {
         industry: industry.trim(),
         description: description.trim(),
         size: size || undefined,
+        image,
+        logo,
       });
 
       if (!result.success) {
@@ -62,6 +68,32 @@ export function CompanyProfileForm({ profile }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Avatar + Logo */}
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label>Profile Photo</Label>
+          <FileUpload
+            folder="avatar"
+            accept="image/jpeg,image/png,image/webp"
+            maxSizeBytes={2 * 1024 * 1024}
+            currentUrl={image}
+            onUpload={(url) => setImage(url || null)}
+            label="Upload photo"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Company Logo</Label>
+          <FileUpload
+            folder="logo"
+            accept="image/jpeg,image/png,image/svg+xml,image/webp"
+            maxSizeBytes={2 * 1024 * 1024}
+            currentUrl={logo}
+            onUpload={(url) => setLogo(url || null)}
+            label="Upload logo"
+          />
+        </div>
+      </div>
+
       {/* Company name */}
       <div className="space-y-1.5">
         <Label htmlFor="company-name">

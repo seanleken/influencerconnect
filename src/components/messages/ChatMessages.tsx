@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getPusherClient } from "@/lib/pusher-client";
 import { cn } from "@/lib/utils";
+import { FileText, ImageIcon } from "lucide-react";
 
 export interface ChatMessage {
   id: string;
@@ -10,6 +11,11 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   createdAt: string;
+  fileUrl?: string | null;
+}
+
+function isImageUrl(url: string) {
+  return /\.(jpe?g|png|webp|gif)(\?|$)/i.test(url);
 }
 
 interface ChatMessagesProps {
@@ -73,9 +79,36 @@ export function ChatMessages({
                   : "bg-white border border-gray-200 text-gray-900 rounded-bl-sm",
               )}
             >
-              <p className="text-body-sm whitespace-pre-wrap break-words">
-                {msg.content}
-              </p>
+              {msg.fileUrl && (
+                isImageUrl(msg.fileUrl) ? (
+                  <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={msg.fileUrl}
+                      alt="Attachment"
+                      className="rounded-xl max-w-full max-h-48 object-cover mb-1"
+                    />
+                  </a>
+                ) : (
+                  <a
+                    href={msg.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "flex items-center gap-2 mb-1 rounded-lg px-3 py-2 text-body-sm font-medium",
+                      isOwn ? "bg-brand-700 text-white" : "bg-gray-100 text-gray-700",
+                    )}
+                  >
+                    <FileText className="w-4 h-4 shrink-0" />
+                    View attachment
+                  </a>
+                )
+              )}
+              {msg.content && (
+                <p className="text-body-sm whitespace-pre-wrap break-words">
+                  {msg.content}
+                </p>
+              )}
               <p
                 className={cn(
                   "text-caption mt-1",

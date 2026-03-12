@@ -19,7 +19,7 @@ export async function sendMessage(formData: unknown) {
     return { success: false, error: result.error.issues[0].message };
   }
 
-  const { conversationId, content } = result.data;
+  const { conversationId, content, fileUrl } = result.data;
 
   const conversation = await getConversationById(conversationId, session.user.id);
   if (!conversation) return { success: false, error: "Conversation not found" };
@@ -28,6 +28,7 @@ export async function sendMessage(formData: unknown) {
     conversationId,
     senderId: session.user.id,
     content,
+    fileUrl,
   });
 
   // Push to all subscribers of this conversation
@@ -37,6 +38,7 @@ export async function sendMessage(formData: unknown) {
     senderId: message.senderId,
     senderName: session.user.name ?? "Unknown",
     createdAt: message.createdAt.toISOString(),
+    fileUrl: message.fileUrl ?? null,
   });
 
   // Notify other participants

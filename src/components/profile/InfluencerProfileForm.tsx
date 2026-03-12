@@ -17,7 +17,9 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { saveInfluencerProfile } from "@/actions/profile";
 import { Plus, Trash2 } from "lucide-react";
+import { FileUpload } from "@/components/shared/FileUpload";
 import type { InfluencerProfile } from "@prisma/client";
+import type { User } from "@prisma/client";
 
 const NICHE_LABELS: Record<Niche, string> = {
   FASHION: "Fashion",
@@ -52,6 +54,7 @@ type SocialLinkState = {
 
 interface Props {
   profile: InfluencerProfile | null;
+  userImage?: string | null;
 }
 
 function parseSocialLinks(raw: unknown): SocialLinkState[] {
@@ -67,10 +70,12 @@ function parseSocialLinks(raw: unknown): SocialLinkState[] {
   });
 }
 
-export function InfluencerProfileForm({ profile }: Props) {
+export function InfluencerProfileForm({ profile, userImage }: Props) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
+  const [image, setImage] = useState<string | null>(userImage ?? null);
+  const [mediaKitUrl, setMediaKitUrl] = useState<string | null>(profile?.mediaKitUrl ?? null);
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [niches, setNiches] = useState<Niche[]>(profile?.niches ?? []);
   const [location, setLocation] = useState(profile?.location ?? "");
@@ -162,6 +167,8 @@ export function InfluencerProfileForm({ profile }: Props) {
         portfolioUrls: cleanPortfolioUrls,
         isAvailable,
         socialLinks: cleanSocialLinks,
+        image,
+        mediaKitUrl,
       });
 
       if (!result.success) {
@@ -193,6 +200,19 @@ export function InfluencerProfileForm({ profile }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Avatar */}
+      <div className="space-y-2">
+        <Label>Profile Photo</Label>
+        <FileUpload
+          folder="avatar"
+          accept="image/jpeg,image/png,image/webp"
+          maxSizeBytes={2 * 1024 * 1024}
+          currentUrl={image}
+          onUpload={(url) => setImage(url || null)}
+          label="Upload photo"
+        />
+      </div>
+
       {/* Bio */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
@@ -431,6 +451,20 @@ export function InfluencerProfileForm({ profile }: Props) {
             Add portfolio link
           </Button>
         </div>
+      </div>
+
+      {/* Media Kit */}
+      <div className="space-y-2">
+        <Label>Media Kit</Label>
+        <p className="text-caption text-gray-500">Upload a PDF showcasing your audience stats and past work</p>
+        <FileUpload
+          folder="media-kit"
+          accept="application/pdf"
+          maxSizeBytes={10 * 1024 * 1024}
+          currentUrl={mediaKitUrl}
+          onUpload={(url) => setMediaKitUrl(url || null)}
+          label="Upload media kit PDF"
+        />
       </div>
 
       {/* Submit */}

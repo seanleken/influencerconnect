@@ -2,11 +2,17 @@ import { db } from "@/lib/db";
 import type { Niche, Prisma } from "@prisma/client";
 
 export async function getInfluencerProfile(userId: string) {
-  return db.influencerProfile.findUnique({ where: { userId } });
+  return db.influencerProfile.findUnique({
+    where: { userId },
+    include: { user: { select: { image: true } } },
+  });
 }
 
 export async function getCompanyProfile(userId: string) {
-  return db.companyProfile.findUnique({ where: { userId } });
+  return db.companyProfile.findUnique({
+    where: { userId },
+    include: { user: { select: { image: true } } },
+  });
 }
 
 type InfluencerProfileData = {
@@ -19,6 +25,7 @@ type InfluencerProfileData = {
   portfolioUrls?: string[];
   isAvailable: boolean;
   socialLinks?: Prisma.InputJsonValue;
+  mediaKitUrl?: string | null;
 };
 
 type CompanyProfileData = {
@@ -27,6 +34,7 @@ type CompanyProfileData = {
   industry: string;
   description: string;
   size?: string | null;
+  logo?: string | null;
 };
 
 export async function upsertInfluencerProfile(

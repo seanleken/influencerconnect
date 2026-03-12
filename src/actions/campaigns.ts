@@ -47,6 +47,7 @@ export async function createCampaign(formData: unknown, publish = false) {
     deliverables,
     deadline,
     maxInfluencers,
+    briefUrl,
   } = result.data;
 
   const campaign = await dbCreateCampaign(profile.id, {
@@ -60,6 +61,7 @@ export async function createCampaign(formData: unknown, publish = false) {
     deliverables,
     deadline: new Date(deadline),
     maxInfluencers,
+    briefUrl: briefUrl ?? null,
     status: publish ? "OPEN" : "DRAFT",
   });
 
@@ -97,6 +99,7 @@ export async function updateCampaign(id: string, formData: unknown) {
     deliverables,
     deadline,
     maxInfluencers,
+    briefUrl,
   } = result.data;
 
   await dbUpdateCampaign(id, {
@@ -110,6 +113,7 @@ export async function updateCampaign(id: string, formData: unknown) {
     deliverables,
     deadline: new Date(deadline),
     maxInfluencers,
+    briefUrl: briefUrl ?? null,
   });
 
   revalidatePath(`/campaigns/${id}`);

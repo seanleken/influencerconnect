@@ -102,6 +102,7 @@ type CampaignData = {
   deliverables: string;
   deadline: Date;
   maxInfluencers: number;
+  briefUrl?: string | null;
   status: CampaignStatus;
 };
 

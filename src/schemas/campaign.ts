@@ -16,6 +16,7 @@ export const campaignSchema = z.object({
     return !isNaN(date.getTime()) && date > new Date();
   }, { message: "Deadline must be a future date" }),
   maxInfluencers: z.coerce.number().int().min(1).max(100).default(1),
+  briefUrl: z.string().url().optional().nullable(),
 }).refine((data) => data.budgetMax >= data.budgetMin, {
   message: "Maximum budget must be at least the minimum",
   path: ["budgetMax"],
